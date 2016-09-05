@@ -1,15 +1,22 @@
 
 
+import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.WindowConstants;
+import javax.swing.JLabel;
 
 public class BlackJack 
 {
 
 	public static void main(String[] args)
 	{
+		
+		
 		MainFrame frame = new MainFrame();
+		
 		frame.setLayout(null);	
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		frame.setSize(Globals.FRAME_WI, Globals.FRAME_HI);

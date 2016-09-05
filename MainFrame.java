@@ -2,11 +2,16 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+
 
 public class MainFrame extends JFrame 
 {
@@ -39,8 +44,8 @@ public class MainFrame extends JFrame
 	MainFrame()
 	{
 		
-		// places the card panels on the board
 		
+		// places the card panels on the board
 		for (int i = 9; i >= 0; i--)
 		{
 			dealerPanels[i] = new CardPanel(cardImages);
@@ -72,6 +77,11 @@ public class MainFrame extends JFrame
 		createDeck();
 		Globals.shuffle(deck);
 		newDeal();
+		
+		URL url = getClass().getResource("/TableFelt.png");
+		JLabel background=new JLabel(new ImageIcon(url));
+	    background.setBounds(0, 0, Globals.FRAME_WI, Globals.FRAME_HI);
+		add(background);
 		
 	}
 	
@@ -112,8 +122,8 @@ public class MainFrame extends JFrame
 	private void addButton(JButton button, int locX, int locY, int Wi, int Hi)
 	{
 		button.setBounds(locX, locY, Wi, Hi);
-		button.setBackground(Color.CYAN);
-		button.setForeground(Color.BLUE);
+//		button.setBackground(Color.CYAN);
+//		button.setForeground(Color.BLUE);
 		button.setBorderPainted(true);
 		
 		//button.addActionListener(l);
@@ -219,8 +229,7 @@ public class MainFrame extends JFrame
 	public void buttonPressed(JButton button, ActionEvent e)
 	{
 
-		//System.out.println(getComponentZOrder(button));
-		//System.out.println(leftHitZ +  ", " + leftStandZ + ", " + rightHitZ + ", " + leftStandZ);
+		//  Checks to see which button was pressed and responds accordingly
 		if(e.getSource() == leftHit)
 		{
 			//System.out.println("Left Hit");
@@ -253,12 +262,13 @@ public class MainFrame extends JFrame
 			dealerTurn();
 		}
 		
+		//  This is for the 5 card rule.  If the player collects 5 cards, it is a automatic win.
 		if (playerPanels[4].getCard() != null)
 		{
 			System.out.println("Additional Code run");
 			if(split)
 			{
-				// ASSIGNMENT: Player wins hand
+				money += Globals.BET_SIZE;
 				leftHit.setVisible(false);
 				leftStand.setVisible(false);
 				rightHit.setVisible(true);
@@ -273,11 +283,10 @@ public class MainFrame extends JFrame
 		
 		if (playerPanels[9].getCard() != null)
 		{
-			System.out.println("Additional Code run");
+			//System.out.println("Additional Code run");
 			money += Globals.BET_SIZE;
 			newDeal();
 		}
-		revalidate();
 		
 	}
 	
@@ -290,11 +299,13 @@ public class MainFrame extends JFrame
 		
 		if(split)
 		{
-			//  Check dealer against left and right side
+			//  Check dealer against left and right side - determine if player gets winnings or not
+			newDeal();
 		}
 		else
 		{
 			//  Check dealer against left side only
+			newDeal();
 		}
 
 	}
