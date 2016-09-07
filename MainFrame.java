@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
@@ -77,7 +78,7 @@ public class MainFrame extends JFrame
 		addButton(splitButton, Globals.SPLIT_LOCX, Globals.SPLIT_LOCY, Globals.BUTTON_WI, Globals.BUTTON_HI);
 		
 		createDeck();
-		Globals.shuffle(deck);
+		//Collections.shuffle(deck);
 		newDeal();
 		
 		URL url = getClass().getResource("/TableFelt.png");
@@ -100,7 +101,7 @@ public class MainFrame extends JFrame
 		}
 		
 		// Shuffles the deck
-		Globals.shuffle(deck);
+		Collections.shuffle(deck);
 		//  re-initializes all the variables needed for a new deal
 		deckPos = 0;
 		leftHandCard = 0;
@@ -109,6 +110,7 @@ public class MainFrame extends JFrame
 		split = false;
 		rightHit.setVisible(false);
 		rightStand.setVisible(false);
+		splitButton.setVisible(false);
 		
 		
 		//  Sets the dealers second card to concealed status, so the player cannot see it (as per standard blackjack rules)
@@ -151,6 +153,7 @@ public class MainFrame extends JFrame
 		if(side == playerSide.leftHand)
 		{
 			playerPanels[leftHandCard].setCard(deck.get(deckPos));
+			System.out.println(playerPanels[leftHandCard].getCard().numValue);
 			leftHandCard++;
 		}
 		else if (side == playerSide.rightHand)
@@ -245,12 +248,11 @@ public class MainFrame extends JFrame
 		{
 			if(split)
 			{
-				
+
 				leftHit.setVisible(false);
 				leftStand.setVisible(false);
 				rightHit.setVisible(true);
 				rightStand.setVisible(true);
-				
 			}
 			else
 			{

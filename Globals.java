@@ -41,20 +41,5 @@ public class Globals
 	
 	public static final int P_SIX_LOCX = P_ONE_LOCX + (CARD_HORIZONTAL_SPACING * 7);
 	
-	public static void shuffle(ArrayList<Card> deck)
-	{
-		
-		//  ASSIGNMENT:  Shuffle the deck with a random number generator.
-		//  Link to info on how the RNG works in Java: http://www.javapractices.com/topic/TopicAction.do?Id=62 
-		
-		//****  This is just an example of how to do a switch using the equals function I added to the card class
-		//  Note that the deck list starts counting at 0, so the last card will be card 51
-		Card temp = new Card('0', '0', 0, "");
-		
-		temp.equals(deck.get(1));
-		deck.get(0).equals(deck.get(2));
-		deck.get(1).equals(temp);
-		//****
-	}
 	
 }
