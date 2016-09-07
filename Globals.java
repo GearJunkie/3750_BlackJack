@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 public class Globals 
 {
+	private static final int BUTTON_SPACE = 150;
+	
 	public static final int FRAME_HI = 1080;
 	public static final int FRAME_WI = 1920;
 	public static final int CARD_HI = 350;
@@ -13,14 +15,16 @@ public class Globals
 	
 	public static final int LEFT_STAND_LOCX = 400;
 	public static final int LEFT_STAND_LOCY = 950;
-	public static final int LEFT_HIT_LOCX = LEFT_STAND_LOCX + 150;
+	public static final int LEFT_HIT_LOCX = LEFT_STAND_LOCX + BUTTON_SPACE;
 	public static final int LEFT_HIT_LOCY = LEFT_STAND_LOCY;
 	
 	public static final int RIGHT_STAND_LOCX = 1000;
 	public static final int RIGHT_STAND_LOCY = LEFT_STAND_LOCY;
-	public static final int RIGHT_HIT_LOCX = RIGHT_STAND_LOCX + 150;
+	public static final int RIGHT_HIT_LOCX = RIGHT_STAND_LOCX + BUTTON_SPACE;
 	public static final int RIGHT_HIT_LOCY = RIGHT_STAND_LOCY;
-	public static final int BET_SIZE = 10; 
+	public static final int BET_SIZE = 10;
+	public static final int SPLIT_LOCX = LEFT_HIT_LOCX + BUTTON_SPACE;
+	public static final int SPLIT_LOCY = RIGHT_STAND_LOCY;
 	
 	public static final int CARD_HORIZONTAL_SPACING = 60;
 	private static final int CARD_VERTICAL_SPACING = 100;

@@ -31,6 +31,7 @@ public class MainFrame extends JFrame
 	JButton leftStand = new JButton("Stand");
 	JButton rightHit = new JButton("Hit");
 	JButton rightStand = new JButton("Stand");
+	JButton splitButton = new JButton("Split");
 	
 	private enum playerSide{leftHand, rightHand, dealer}
 	private int deckPos = 0;
@@ -73,6 +74,7 @@ public class MainFrame extends JFrame
 		addButton(leftStand, Globals.LEFT_STAND_LOCX, Globals.LEFT_STAND_LOCY, Globals.BUTTON_WI, Globals.BUTTON_HI);
 		addButton(rightHit, Globals.RIGHT_HIT_LOCX, Globals.RIGHT_HIT_LOCY, Globals.BUTTON_WI, Globals.BUTTON_HI);
 		addButton(rightStand, Globals.RIGHT_STAND_LOCX, Globals.RIGHT_STAND_LOCY, Globals.BUTTON_WI, Globals.BUTTON_HI);
+		addButton(splitButton, Globals.SPLIT_LOCX, Globals.SPLIT_LOCY, Globals.BUTTON_WI, Globals.BUTTON_HI);
 		
 		createDeck();
 		Globals.shuffle(deck);
@@ -169,7 +171,7 @@ public class MainFrame extends JFrame
 	private void createDeck()
 	{
 		// creates the deck
-		deck.add(new Card('S', 'A', 11, "AceSpades"));
+		deck.add(new Card('S', 'A', 1, "AceSpades"));
 		deck.add(new Card('S', '2', 2, "TwoSpades"));
 		deck.add(new Card('S', '3', 3, "ThreeSpades"));
 		deck.add(new Card('S', '4', 4, "FourSpades"));
