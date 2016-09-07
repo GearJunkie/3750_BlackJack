@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
@@ -16,6 +17,7 @@ import javax.swing.JLabel;
 public class MainFrame extends JFrame 
 {
 	ArrayList<Card> deck = new ArrayList<Card>();
+	
 	
 	CardPanel[] dealerPanels = new CardPanel[10];
 	CardPanel[] playerPanels = new CardPanel[10];
@@ -31,7 +33,6 @@ public class MainFrame extends JFrame
 	JButton leftStand = new JButton("Stand");
 	JButton rightHit = new JButton("Hit");
 	JButton rightStand = new JButton("Stand");
-	JButton splitButton = new JButton("Split");
 	
 	private enum playerSide{leftHand, rightHand, dealer}
 	private int deckPos = 0;
@@ -74,10 +75,9 @@ public class MainFrame extends JFrame
 		addButton(leftStand, Globals.LEFT_STAND_LOCX, Globals.LEFT_STAND_LOCY, Globals.BUTTON_WI, Globals.BUTTON_HI);
 		addButton(rightHit, Globals.RIGHT_HIT_LOCX, Globals.RIGHT_HIT_LOCY, Globals.BUTTON_WI, Globals.BUTTON_HI);
 		addButton(rightStand, Globals.RIGHT_STAND_LOCX, Globals.RIGHT_STAND_LOCY, Globals.BUTTON_WI, Globals.BUTTON_HI);
-		addButton(splitButton, Globals.SPLIT_LOCX, Globals.SPLIT_LOCY, Globals.BUTTON_WI, Globals.BUTTON_HI);
 		
 		createDeck();
-		Globals.shuffle(deck);
+		Collections.shuffle(deck);
 		newDeal();
 		
 		URL url = getClass().getResource("/TableFelt.png");
@@ -97,10 +97,13 @@ public class MainFrame extends JFrame
 		{
 			dealerPanels[i].setCard(null);
 			playerPanels[i].setCard(null);
+			dealerPanels[i].repaint();
+			playerPanels[i].repaint();
 		}
 		
+		
 		// Shuffles the deck
-		Globals.shuffle(deck);
+		Collections.shuffle(deck);
 		//  re-initializes all the variables needed for a new deal
 		deckPos = 0;
 		leftHandCard = 0;
@@ -151,6 +154,7 @@ public class MainFrame extends JFrame
 		if(side == playerSide.leftHand)
 		{
 			playerPanels[leftHandCard].setCard(deck.get(deckPos));
+			System.out.println(playerPanels[leftHandCard].getCard().numValue);
 			leftHandCard++;
 		}
 		else if (side == playerSide.rightHand)
@@ -171,7 +175,7 @@ public class MainFrame extends JFrame
 	private void createDeck()
 	{
 		// creates the deck
-		deck.add(new Card('S', 'A', 1, "AceSpades"));
+		deck.add(new Card('S', 'A', 11, "AceSpades"));
 		deck.add(new Card('S', '2', 2, "TwoSpades"));
 		deck.add(new Card('S', '3', 3, "ThreeSpades"));
 		deck.add(new Card('S', '4', 4, "FourSpades"));
