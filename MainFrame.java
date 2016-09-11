@@ -13,6 +13,8 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
+//import MainFrame.playerSide;
+
 
 public class MainFrame extends JFrame 
 {
@@ -98,6 +100,8 @@ public class MainFrame extends JFrame
 		{
 			dealerPanels[i].setCard(null);
 			playerPanels[i].setCard(null);
+			dealerPanels[i].repaint();
+			playerPanels[i].repaint();
 		}
 		
 		// Shuffles the deck
@@ -246,7 +250,10 @@ public class MainFrame extends JFrame
 		}
 		else if (e.getSource() == leftStand)
 		{
-			if(split)
+			//****** DEALER AI TESTING *****
+			dealerTurn();
+			
+			/* if(split)
 			{
 
 				leftHit.setVisible(false);
@@ -257,7 +264,7 @@ public class MainFrame extends JFrame
 			else
 			{
 				dealerTurn();
-			}
+			} */
 			
 
 		}
@@ -299,18 +306,112 @@ public class MainFrame extends JFrame
 		//  ASSIGNMENT: Deals cards to the dealer until the dealer reaches the value of 17
 		//  The dealer will hit on a "soft" 17.  A soft 17 means they have 17 with an ace that equals 11
 		//  If they hit and bust with a soft 17 and get over 21, their Ace becomes a 1
-		dealCard(playerSide.dealer);
+		int dealerHandValue = 0;
+		int playerLeftHandValue = 0;
+		int playerRightHandValue = 0;
+		boolean dealerAce = false;
+		
+		dealerPanels[1].concealed = false;
+		dealerPanels[1].repaint();
+		
+		// Determine dealer hand value
+		for (int i = 0; i < 2; i++)
+		{
+			dealerHandValue += dealerPanels[i].getCard().numValue;
+			
+			// Checks if the dealer has an Ace
+			if (dealerPanels[i].getCard().numValue == 11)
+				dealerAce = true;
+		}
+		
+		// Determine left hand value
+		for (int i = 0; i < leftHandCard; i++)
+		{
+			playerLeftHandValue += playerPanels[i].getCard().numValue;
+		}
+		
+		// Dealer AI
+		for (int i = 0; i < dealerCard; i++)
+		{
+			// Deals dealer a new card and updates dealerHandValue if dealer hand value is less than 17
+			// If dealer has an ace and a hand value of 17, deal new card and change ace to 1
+			if (dealerHandValue < 17)
+			{
+				dealCard(playerSide.dealer);
+				dealerHandValue += dealerPanels[dealerCard - 1].getCard().numValue;
+			}
+			else if (dealerHandValue == 17 && dealerAce == true)
+			{
+				dealerHandValue -= 10;		// Ace is changed from value 11 to 1
+				dealCard(playerSide.dealer);
+				dealerHandValue += dealerPanels[dealerCard - 1].getCard().numValue;
+				dealerAce = false;			// Ace value is changed to 1, so dealerAce is set to false
+			}
+			
+			// Checks for any new dealt Ace
+			if (dealerPanels[dealerCard - 1].getCard().numValue == 11)
+				dealerAce = true;
+			
+			// Display each dealt card for 1 second
+			try {
+			    Thread.sleep(1000);                 //1000 milliseconds is one second.
+			} catch(InterruptedException ex) {
+			    Thread.currentThread().interrupt();
+			}
+		}
 		
 		if(split)
 		{
 			//  Check dealer against left and right side - determine if player gets winnings or not
-			newDeal();
+			
+			// Determine right hand value
+			for (int i = 0; i < rightHandCard; i++)
+			{
+				playerRightHandValue += playerPanels[i + (leftHandCard - 1)].getCard().numValue;
+			}
+			
+			// Determine who wins
+			if (dealerHandValue > playerLeftHandValue && dealerHandValue > playerRightHandValue)
+			{
+				System.out.println("Dealer Wins!");
+			}
+			else
+			{
+				if (dealerHandValue < playerLeftHandValue)
+				{
+					System.out.println("Player's Left Hand Wins!");
+					money += Globals.BET_SIZE;
+				}
+				
+				if (dealerHandValue < playerRightHandValue)
+				{
+					System.out.println("Player's Right Hand Wins!");
+					money += Globals.BET_SIZE;
+				}
+			}
 		}
 		else
 		{
 			//  Check dealer against left side only
-			newDeal();
+			
+			// Determine who wins
+			if (dealerHandValue > playerLeftHandValue)
+			{
+				System.out.println("Dealer Wins!");
+			}
+			else
+			{
+				System.out.println("Player Wins!");
+				money += Globals.BET_SIZE;
+			}
+			
 		}
+		
+		// Need some sort of wait here
+		// i.e. a button that initiates newDeal()
+		// Perhaps the screen could display who wins during this wait
+		
+		newDeal();
 
 	}
 	
