@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
@@ -41,6 +42,11 @@ public class MainFrame extends JFrame
 	private int dealerCard = 0;
 	private int money = 500;
 	
+	//hand values
+	private int RHTotal = 0;
+	private int LHTotal = 0;
+	private List<Integer> leftHandValues = new ArrayList<>();
+	private List<Integer> rightHandValues = new ArrayList<>();
 	private boolean split = false;
 	
 	MainFrame()
@@ -100,6 +106,10 @@ public class MainFrame extends JFrame
 			playerPanels[i].setCard(null);
 		}
 		
+		//resets hand Count
+		RHTotal = 0;
+		LHTotal = 0;
+		
 		// Shuffles the deck
 		Collections.shuffle(deck);
 		//  re-initializes all the variables needed for a new deal
@@ -154,27 +164,63 @@ public class MainFrame extends JFrame
 		{
 			playerPanels[leftHandCard].setCard(deck.get(deckPos));
 			System.out.println(playerPanels[leftHandCard].getCard().numValue);
+			leftHandValues.add(playerPanels[leftHandCard].getCard().numValue);
 			leftHandCard++;
 		}
 		else if (side == playerSide.rightHand)
 		{
 			playerPanels[rightHandCard].setCard(deck.get(deckPos));
+			
+			rightHandValues.add(playerPanels[rightHandCard].getCard().numValue);
 			rightHandCard++;
 		}
 		else if (side == playerSide.dealer)
 		{
 			dealerPanels[dealerCard].setCard(deck.get(deckPos));
+			
 			dealerCard++;
 		}
 		deckPos++;
-		
+		updateCountLables();
 	}
 	
+	private void updateCountLables() {
+		// update all the count labels with all the running totals
+		 RHTotal = calculateHandValues(rightHandValues);
+		 LHTotal = calculateHandValues(leftHandValues);
+		
+		System.out.println("Total: " + RHTotal + LHTotal);
+		//add RHTotal and LHTotal to string in label display
+	}
+
+
+	private int calculateHandValues(List<Integer> hand) {
+		// add numValue to hand and check for ACE
+		int handTotal = 0;
+		//add all numValues in hand
+		for(Integer item : hand){
+			handTotal += item;
+		}
+		//if BUST..
+		if(handTotal > 21){
+			//check for ace
+			for(Integer item : hand){
+				if (item == 11){
+					//if ace.. handTotal -= 10
+					handTotal -= 10;
+			}
+			}
+			
+		}
+		return handTotal;
+	}
+
+
 	//  This function should only be called once.  Once the deck is created, it won't need to be created again.
 	private void createDeck()
 	{
 		// creates the deck
-		deck.add(new Card('S', 'A', 1, "AceSpades"));
+		deck.add(new Card('S', 'A', 11, "AceSpades"));
 		deck.add(new Card('S', '2', 2, "TwoSpades"));
 		deck.add(new Card('S', '3', 3, "ThreeSpades"));
 		deck.add(new Card('S', '4', 4, "FourSpades"));
