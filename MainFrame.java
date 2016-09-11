@@ -47,7 +47,11 @@ public class MainFrame extends JFrame
 	private int LHTotal = 0;
 	private List<Integer> leftHandValues = new ArrayList<>();
 	private List<Integer> rightHandValues = new ArrayList<>();
+	private String strLHTotal = "Total: ";
 	private boolean split = false;
+	
+	//where does this show up?? -- how do I get it to show up???
+	JLabel LHTotall = new JLabel(strLHTotal);
 	
 	MainFrame()
 	{
@@ -109,6 +113,8 @@ public class MainFrame extends JFrame
 		//resets hand Count
 		RHTotal = 0;
 		LHTotal = 0;
+		rightHandValues.clear();
+		leftHandValues.clear();
 		
 		// Shuffles the deck
 		Collections.shuffle(deck);
@@ -188,8 +194,11 @@ public class MainFrame extends JFrame
 		// update all the count labels with all the running totals
 		 RHTotal = calculateHandValues(rightHandValues);
 		 LHTotal = calculateHandValues(leftHandValues);
+		 
+		 strLHTotal = ("Total: " + LHTotal);
 		
-		System.out.println("Total: " + RHTotal + LHTotal);
+		System.out.println("Right Total: " + RHTotal );
+		System.out.println("Left Total: " + LHTotal);
 		//add RHTotal and LHTotal to string in label display
 	}
 
