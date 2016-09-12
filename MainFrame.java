@@ -12,6 +12,9 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
+//import MainFrame.playerSide;
 
 
 public class MainFrame extends JFrame 
@@ -98,6 +101,8 @@ public class MainFrame extends JFrame
 		{
 			dealerPanels[i].setCard(null);
 			playerPanels[i].setCard(null);
+			dealerPanels[i].repaint();
+			playerPanels[i].repaint();
 		}
 		
 		// Shuffles the deck
@@ -108,6 +113,8 @@ public class MainFrame extends JFrame
 		rightHandCard = 5;
 		dealerCard = 0;
 		split = false;
+		leftStand.setVisible(true);
+		leftHit.setVisible(true);
 		rightHit.setVisible(false);
 		rightStand.setVisible(false);
 		splitButton.setVisible(false);
@@ -153,7 +160,7 @@ public class MainFrame extends JFrame
 		if(side == playerSide.leftHand)
 		{
 			playerPanels[leftHandCard].setCard(deck.get(deckPos));
-			System.out.println(playerPanels[leftHandCard].getCard().numValue);
+			//System.out.println(playerPanels[leftHandCard].getCard().numValue);
 			leftHandCard++;
 		}
 		else if (side == playerSide.rightHand)
@@ -174,7 +181,7 @@ public class MainFrame extends JFrame
 	private void createDeck()
 	{
 		// creates the deck
-		deck.add(new Card('S', 'A', 1, "AceSpades"));
+		deck.add(new Card('S', 'A', 11, "AceSpades"));
 		deck.add(new Card('S', '2', 2, "TwoSpades"));
 		deck.add(new Card('S', '3', 3, "ThreeSpades"));
 		deck.add(new Card('S', '4', 4, "FourSpades"));
@@ -246,9 +253,11 @@ public class MainFrame extends JFrame
 		}
 		else if (e.getSource() == leftStand)
 		{
-			if(split)
+			//****** DEALER AI TESTING *****
+			dealerTurn();
+			
+			/* if(split)
 			{
-
 				leftHit.setVisible(false);
 				leftStand.setVisible(false);
 				rightHit.setVisible(true);
@@ -257,7 +266,7 @@ public class MainFrame extends JFrame
 			else
 			{
 				dealerTurn();
-			}
+			} */
 			
 
 		}
@@ -269,7 +278,8 @@ public class MainFrame extends JFrame
 		//  This is for the 5 card rule.  If the player collects 5 cards, it is a automatic win.
 		if (playerPanels[4].getCard() != null)
 		{
-			System.out.println("Additional Code run");
+			//System.out.println("Additional Code run");
+			dealerTurn();  //  For debugging purposes
 			if(split)
 			{
 				money += Globals.BET_SIZE;
@@ -288,6 +298,7 @@ public class MainFrame extends JFrame
 		if (playerPanels[9].getCard() != null)
 		{
 			//System.out.println("Additional Code run");
+			dealerTurn();
 			money += Globals.BET_SIZE;
 			newDeal();
 		}
@@ -299,20 +310,137 @@ public class MainFrame extends JFrame
 		//  ASSIGNMENT: Deals cards to the dealer until the dealer reaches the value of 17
 		//  The dealer will hit on a "soft" 17.  A soft 17 means they have 17 with an ace that equals 11
 		//  If they hit and bust with a soft 17 and get over 21, their Ace becomes a 1
-		dealCard(playerSide.dealer);
+		int dealerHandValue = 0;
+		int playerLeftHandValue = 0;
+		int playerRightHandValue = 0;
+		boolean dealerAce = false;
+		
+		dealerPanels[1].concealed = false;
+		dealerPanels[1].repaint();
+		
+		leftHit.setVisible(false);
+		leftStand.setVisible(false);
+		rightHit.setVisible(false);
+		rightStand.setVisible(false);
+		
+		
+		
+		// Determine dealer hand value
+		for (int i = 0; i < 2; i++)
+		{
+			dealerHandValue += dealerPanels[i].getCard().numValue;
+			
+			// Checks if the dealer has an Ace
+			if (dealerPanels[i].getCard().numValue == 11)
+				dealerAce = true;
+		}
+		
+		// Determine left hand value
+		for (int i = 0; i < leftHandCard; i++)
+		{
+			playerLeftHandValue += playerPanels[i].getCard().numValue;
+		}
+		
+		// Dealer AI
+		for (int i = 0; i < 8; i++)
+		{
+			// Deals dealer a new card and updates dealerHandValue if dealer hand value is less than 17
+			// If dealer has an ace and a hand value of 17, deal new card and change ace to 1
+			
+			/*for (int j = 0; j < dealerCard; i++)
+			{
+				dealerPanels[j].repaint();
+			}*/
+			
+			
+			
+			System.out.println(dealerHandValue);
+			if (dealerHandValue < 17)
+			{
+				JOptionPane.showMessageDialog(this, "Next card");
+				System.out.println("new card dealt");
+				dealCard(playerSide.dealer);
+				//dealerPanels[dealerCard].repaint();
+				dealerHandValue += dealerPanels[dealerCard - 1].getCard().numValue;
+			}
+			else if (dealerHandValue == 17 && dealerAce == true)
+			{
+				JOptionPane.showMessageDialog(this, "Next card");
+				System.out.println("new card dealt");
+				dealerHandValue -= 10;		// Ace is changed from value 11 to 1
+				dealCard(playerSide.dealer);
+				//dealerPanels[dealerCard].repaint();
+				dealerHandValue += dealerPanels[dealerCard - 1].getCard().numValue;
+				dealerAce = false;			// Ace value is changed to 1, so dealerAce is set to false
+			}
+			else
+			{
+				break;
+			}
+			
+			// Checks for any new dealt Ace
+			if (dealerPanels[dealerCard - 1].getCard().numValue == 11)
+				dealerAce = true;
+			
+			// Display each dealt card for 1 second
+			
+			    //1000 milliseconds is one second.
+			revalidate();
+		}
 		
 		if(split)
 		{
 			//  Check dealer against left and right side - determine if player gets winnings or not
-			newDeal();
+			
+			// Determine right hand value
+			for (int i = 0; i < rightHandCard; i++)
+			{
+				playerRightHandValue += playerPanels[i + (leftHandCard - 1)].getCard().numValue;
+			}
+			
+			// Determine who wins
+			if (dealerHandValue > playerLeftHandValue && dealerHandValue > playerRightHandValue)
+			{
+				System.out.println("Dealer Wins!");
+			}
+			else
+			{
+				if (dealerHandValue < playerLeftHandValue)
+				{
+					System.out.println("Player's Left Hand Wins!");
+					money += Globals.BET_SIZE;
+				}
+				
+				if (dealerHandValue < playerRightHandValue)
+				{
+					System.out.println("Player's Right Hand Wins!");
+					money += Globals.BET_SIZE;
+				}
+			}
 		}
 		else
 		{
 			//  Check dealer against left side only
-			newDeal();
+			
+			// Determine who wins
+			if (dealerHandValue > playerLeftHandValue)
+			{
+				JOptionPane.showMessageDialog(this, "Dealer Wins!");
+			}
+			else
+			{
+				JOptionPane.showMessageDialog(this, "Player Wins");
+				money += Globals.BET_SIZE;
+			}
+			
 		}
+		
+		// Need some sort of wait here
+		// i.e. a button that initiates newDeal()
+		// Perhaps the screen could display who wins during this wait
+		
+		newDeal();
 
 	}
 	
 }
-
