@@ -12,6 +12,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 
 //import MainFrame.playerSide;
 
@@ -112,6 +113,8 @@ public class MainFrame extends JFrame
 		rightHandCard = 5;
 		dealerCard = 0;
 		split = false;
+		leftStand.setVisible(true);
+		leftHit.setVisible(true);
 		rightHit.setVisible(false);
 		rightStand.setVisible(false);
 		splitButton.setVisible(false);
@@ -157,7 +160,7 @@ public class MainFrame extends JFrame
 		if(side == playerSide.leftHand)
 		{
 			playerPanels[leftHandCard].setCard(deck.get(deckPos));
-			System.out.println(playerPanels[leftHandCard].getCard().numValue);
+			//System.out.println(playerPanels[leftHandCard].getCard().numValue);
 			leftHandCard++;
 		}
 		else if (side == playerSide.rightHand)
@@ -178,7 +181,7 @@ public class MainFrame extends JFrame
 	private void createDeck()
 	{
 		// creates the deck
-		deck.add(new Card('S', 'A', 1, "AceSpades"));
+		deck.add(new Card('S', 'A', 11, "AceSpades"));
 		deck.add(new Card('S', '2', 2, "TwoSpades"));
 		deck.add(new Card('S', '3', 3, "ThreeSpades"));
 		deck.add(new Card('S', '4', 4, "FourSpades"));
@@ -255,7 +258,6 @@ public class MainFrame extends JFrame
 			
 			/* if(split)
 			{
-
 				leftHit.setVisible(false);
 				leftStand.setVisible(false);
 				rightHit.setVisible(true);
@@ -276,7 +278,8 @@ public class MainFrame extends JFrame
 		//  This is for the 5 card rule.  If the player collects 5 cards, it is a automatic win.
 		if (playerPanels[4].getCard() != null)
 		{
-			System.out.println("Additional Code run");
+			//System.out.println("Additional Code run");
+			dealerTurn();  //  For debugging purposes
 			if(split)
 			{
 				money += Globals.BET_SIZE;
@@ -295,6 +298,7 @@ public class MainFrame extends JFrame
 		if (playerPanels[9].getCard() != null)
 		{
 			//System.out.println("Additional Code run");
+			dealerTurn();
 			money += Globals.BET_SIZE;
 			newDeal();
 		}
@@ -314,6 +318,13 @@ public class MainFrame extends JFrame
 		dealerPanels[1].concealed = false;
 		dealerPanels[1].repaint();
 		
+		leftHit.setVisible(false);
+		leftStand.setVisible(false);
+		rightHit.setVisible(false);
+		rightStand.setVisible(false);
+		
+		
+		
 		// Determine dealer hand value
 		for (int i = 0; i < 2; i++)
 		{
@@ -331,33 +342,50 @@ public class MainFrame extends JFrame
 		}
 		
 		// Dealer AI
-		for (int i = 0; i < dealerCard; i++)
+		for (int i = 0; i < 8; i++)
 		{
 			// Deals dealer a new card and updates dealerHandValue if dealer hand value is less than 17
 			// If dealer has an ace and a hand value of 17, deal new card and change ace to 1
-			if (dealerHandValue < 17)
+			
+			/*for (int j = 0; j < dealerCard; i++)
 			{
+				dealerPanels[j].repaint();
+			}*/
+			
+			
+			
+			System.out.println(dealerHandValue);
+			if (dealerHandValue > playerLeftHandValue && dealerHandValue > playerRightHandValue)
+			{
+				break;
+			}
+			
+			if (dealerHandValue < 17 || (dealerHandValue < playerLeftHandValue && dealerHandValue < playerRightHandValue))
+			{
+				JOptionPane.showMessageDialog(this, "Next card");
+				System.out.println("new card dealt");
 				dealCard(playerSide.dealer);
 				dealerHandValue += dealerPanels[dealerCard - 1].getCard().numValue;
 			}
 			else if (dealerHandValue == 17 && dealerAce == true)
 			{
+				JOptionPane.showMessageDialog(this, "Next card");
+				System.out.println("new card dealt");
 				dealerHandValue -= 10;		// Ace is changed from value 11 to 1
 				dealCard(playerSide.dealer);
 				dealerHandValue += dealerPanels[dealerCard - 1].getCard().numValue;
 				dealerAce = false;			// Ace value is changed to 1, so dealerAce is set to false
+			}
+			else
+			{
+				break;
 			}
 			
 			// Checks for any new dealt Ace
 			if (dealerPanels[dealerCard - 1].getCard().numValue == 11)
 				dealerAce = true;
 			
-			// Display each dealt card for 1 second
-			try {
-			    Thread.sleep(1000);                 //1000 milliseconds is one second.
-			} catch(InterruptedException ex) {
-			    Thread.currentThread().interrupt();
-			}
+			revalidate();
 		}
 		
 		if(split)
@@ -371,7 +399,12 @@ public class MainFrame extends JFrame
 			}
 			
 			// Determine who wins
-			if (dealerHandValue > playerLeftHandValue && dealerHandValue > playerRightHandValue)
+			if (dealerHandValue > 21)
+			{
+				dealerHandValue = 0;
+				JOptionPane.showMessageDialog(this, "Dealer busts, player Wins!");
+			}
+			else if (dealerHandValue > playerLeftHandValue && dealerHandValue > playerRightHandValue)
 			{
 				System.out.println("Dealer Wins!");
 			}
@@ -395,25 +428,28 @@ public class MainFrame extends JFrame
 			//  Check dealer against left side only
 			
 			// Determine who wins
-			if (dealerHandValue > playerLeftHandValue)
+			if (dealerHandValue > 21)
 			{
-				System.out.println("Dealer Wins!");
+				dealerHandValue = 0;
+				JOptionPane.showMessageDialog(this, "Dealer busts, player Wins!");
+			}
+			else if (dealerHandValue > playerLeftHandValue)
+			{
+				JOptionPane.showMessageDialog(this, "Dealer Wins!");
+			}
+			else if (dealerHandValue < playerLeftHandValue)
+			{
+				JOptionPane.showMessageDialog(this, "Player Wins");
+				money += Globals.BET_SIZE;
 			}
 			else
 			{
-				System.out.println("Player Wins!");
-				money += Globals.BET_SIZE;
+				JOptionPane.showMessageDialog(this, "Draw");
 			}
-			
 		}
-		
-		// Need some sort of wait here
-		// i.e. a button that initiates newDeal()
-		// Perhaps the screen could display who wins during this wait
 		
 		newDeal();
 
 	}
 	
 }
-
