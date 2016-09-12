@@ -10,7 +10,8 @@ import javax.swing.JPanel;
 
 public class CardPanel extends JPanel
 {
-	private Card panelCard;
+	//private Card panelCard = new Card('0', '0', 0, "0");
+	private Card panelCard = new Card('0', '0', 0, "0");
 	URL url;
 	ImageIcon image;
 	loadImages cardImages;
