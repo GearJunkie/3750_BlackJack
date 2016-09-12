@@ -51,7 +51,8 @@ public class MainFrame extends JFrame
 	private boolean split = false;
 	
 	//where does this show up?? -- how do I get it to show up???
-	JLabel LHTotall = new JLabel(strLHTotal);
+	JLabel LHTotalLabel = new JLabel(strLHTotal);
+	
 	
 	MainFrame()
 	{
@@ -95,6 +96,9 @@ public class MainFrame extends JFrame
 		JLabel background=new JLabel(new ImageIcon(url));
 	    background.setBounds(0, 0, Globals.FRAME_WI, Globals.FRAME_HI);
 		add(background);
+		
+		LHTotalLabel.setBounds(20,20,5,10);
+		add(LHTotalLabel);
 		
 	}
 	
