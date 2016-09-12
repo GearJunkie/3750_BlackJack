@@ -1,5 +1,6 @@
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
@@ -12,6 +13,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 
 
 public class MainFrame extends JFrame 
@@ -41,8 +43,18 @@ public class MainFrame extends JFrame
 	private int dealerCard = 0;
 	private int money = 500;
 	
+	//hand values
+		private int RHTotal = 0;
+		private int LHTotal = 0;
+		private ArrayList<Integer> leftHandValues = new ArrayList<>();
+		private ArrayList<Integer> rightHandValues = new ArrayList<>();
+		private String strLHTotal = "Total: ";
+	
 	private boolean split = false;
 	
+	//where does this show up?? -- how do I get it to show up???
+	JLabel LHTotalLabel = new JLabel(strLHTotal);
+		
 	MainFrame()
 	{
 		
@@ -77,7 +89,7 @@ public class MainFrame extends JFrame
 		addButton(rightStand, Globals.RIGHT_STAND_LOCX, Globals.RIGHT_STAND_LOCY, Globals.BUTTON_WI, Globals.BUTTON_HI);
 		
 		createDeck();
-		Collections.shuffle(deck);
+		//Collections.shuffle(deck);
 		newDeal();
 		
 		URL url = getClass().getResource("/TableFelt.png");
@@ -91,7 +103,10 @@ public class MainFrame extends JFrame
 	//  Call this function to deal a new hand.
 	private void newDeal()
 	{
-		
+		rightHit.setVisible(false);
+		rightStand.setVisible(false);
+		leftHit.setVisible(true);
+		leftStand.setVisible(true);
 		//  Sets all the panels to null, so they will not show any cards
 		for (int i = 0; i < 10; i++)
 		{
@@ -110,8 +125,7 @@ public class MainFrame extends JFrame
 		rightHandCard = 5;
 		dealerCard = 0;
 		split = false;
-		rightHit.setVisible(false);
-		rightStand.setVisible(false);
+		
 		
 		
 		//  Sets the dealers second card to concealed status, so the player cannot see it (as per standard blackjack rules)
@@ -169,6 +183,40 @@ public class MainFrame extends JFrame
 		}
 		deckPos++;
 		
+	}
+	
+	private void updateCountLables() {
+		// update all the count labels with all the running totals
+		 RHTotal = calculateHandValues(rightHandValues);
+		 LHTotal = calculateHandValues(leftHandValues);
+		 
+		 strLHTotal = ("Total: " + LHTotal);
+		
+		System.out.println("Right Total: " + RHTotal );
+		System.out.println("Left Total: " + LHTotal);
+		//add RHTotal and LHTotal to string in label display
+	}
+
+
+	private int calculateHandValues(ArrayList<Integer> hand) {
+		// add numValue to hand and check for ACE
+		int handTotal = 0;
+		//add all numValues in hand
+		for(Integer item : hand){
+			handTotal += item;
+		}
+		//if BUST..
+		if(handTotal > 21){
+			//check for ace
+			for(Integer item : hand){
+				if (item == 11){
+					//if ace.. handTotal -= 10
+					handTotal -= 10;
+			}
+			}
+			
+		}
+		return handTotal;
 	}
 	
 	//  This function should only be called once.  Once the deck is created, it won't need to be created again.
@@ -238,8 +286,39 @@ public class MainFrame extends JFrame
 		//  Checks to see which button was pressed and responds accordingly
 		if(e.getSource() == leftHit)
 		{
+			int leftHandValue = 0;
 			//System.out.println("Left Hit");
 			dealCard(playerSide.leftHand);
+			
+			
+			for(int i = 0; i < leftHandCard; i++)
+			{
+				leftHandValue += playerPanels[i].getCard().numValue;
+				
+			}
+			
+			
+			if (leftHandValue > 21)
+			{
+				for (int i = 0; i < leftHandCard; i++)
+				{
+					if (playerPanels[i].getCard().numValue == 11)
+					{
+						leftHandValue-= 10;
+					}
+				}
+			
+				if (leftHandValue > 21)
+				{
+					JOptionPane.showMessageDialog(this,
+						    "Bust!",
+						    "",
+						    JOptionPane.PLAIN_MESSAGE);
+					
+					newDeal();
+				}
+			}
+			
 		}
 		else if (e.getSource() == rightHit)
 		{
@@ -268,6 +347,7 @@ public class MainFrame extends JFrame
 			dealerTurn();
 		}
 		
+		Component frame = null;
 		//  This is for the 5 card rule.  If the player collects 5 cards, it is a automatic win.
 		if (playerPanels[4].getCard() != null)
 		{
@@ -283,6 +363,10 @@ public class MainFrame extends JFrame
 			else
 			{
 				money+= Globals.BET_SIZE;
+				JOptionPane.showMessageDialog(frame,
+					    "You win! " + "$10",
+					    "",
+					    JOptionPane.PLAIN_MESSAGE);
 				newDeal();
 			}
 		}
@@ -291,6 +375,10 @@ public class MainFrame extends JFrame
 		{
 			//System.out.println("Additional Code run");
 			money += Globals.BET_SIZE;
+			JOptionPane.showMessageDialog(frame,
+				    "You win!" + "$10",
+				    "",
+				    JOptionPane.PLAIN_MESSAGE);
 			newDeal();
 		}
 		
@@ -301,20 +389,139 @@ public class MainFrame extends JFrame
 		//  ASSIGNMENT: Deals cards to the dealer until the dealer reaches the value of 17
 		//  The dealer will hit on a "soft" 17.  A soft 17 means they have 17 with an ace that equals 11
 		//  If they hit and bust with a soft 17 and get over 21, their Ace becomes a 1
-		dealCard(playerSide.dealer);
+		int dealerHandValue = 0;
+		int playerLeftHandValue = 0;
+		int playerRightHandValue = 0;
+		boolean dealerAce = false;
+		
+		dealerPanels[1].concealed = false;
+		dealerPanels[1].repaint();
+		
+		leftHit.setVisible(false);
+		leftStand.setVisible(false);
+		rightHit.setVisible(false);
+		rightStand.setVisible(false);
+		
+		
+		
+		// Determine dealer hand value
+		for (int i = 0; i < 2; i++)
+		{
+			dealerHandValue += dealerPanels[i].getCard().numValue;
+			
+			// Checks if the dealer has an Ace
+			if (dealerPanels[i].getCard().numValue == 11)
+				dealerAce = true;
+		}
+		
+		// Determine left hand value
+		for (int i = 0; i < leftHandCard; i++)
+		{
+			playerLeftHandValue += playerPanels[i].getCard().numValue;
+		}
+		
+		// Dealer AI
+		for (int i = 0; i < 8; i++)
+		{
+			// Deals dealer a new card and updates dealerHandValue if dealer hand value is less than 17
+			// If dealer has an ace and a hand value of 17, deal new card and change ace to 1
+			
+			/*for (int j = 0; j < dealerCard; i++)
+			{
+				dealerPanels[j].repaint();
+			}*/
+			
+			
+			
+			System.out.println(dealerHandValue);
+			if (dealerHandValue < 17)
+			{
+				JOptionPane.showMessageDialog(this, "Next card");
+				System.out.println("new card dealt");
+				dealCard(playerSide.dealer);
+				//dealerPanels[dealerCard].repaint();
+				dealerHandValue += dealerPanels[dealerCard - 1].getCard().numValue;
+			}
+			else if (dealerHandValue == 17 && dealerAce == true)
+			{
+				JOptionPane.showMessageDialog(this, "Next card");
+				System.out.println("new card dealt");
+				dealerHandValue -= 10;		// Ace is changed from value 11 to 1
+				dealCard(playerSide.dealer);
+				//dealerPanels[dealerCard].repaint();
+				dealerHandValue += dealerPanels[dealerCard - 1].getCard().numValue;
+				dealerAce = false;			// Ace value is changed to 1, so dealerAce is set to false
+			}
+			else
+			{
+				break;
+			}
+			
+			// Checks for any new dealt Ace
+			if (dealerPanels[dealerCard - 1].getCard().numValue == 11)
+				dealerAce = true;
+			
+			// Display each dealt card for 1 second
+			
+			    //1000 milliseconds is one second.
+			revalidate();
+		}
 		
 		if(split)
 		{
 			//  Check dealer against left and right side - determine if player gets winnings or not
-			newDeal();
+			
+			// Determine right hand value
+			for (int i = 0; i < rightHandCard; i++)
+			{
+				playerRightHandValue += playerPanels[i + (leftHandCard - 1)].getCard().numValue;
+			}
+			
+			// Determine who wins
+			if (dealerHandValue > playerLeftHandValue && dealerHandValue > playerRightHandValue)
+			{
+				System.out.println("Dealer Wins!");
+			}
+			else
+			{
+				if (dealerHandValue < playerLeftHandValue)
+				{
+					System.out.println("Player's Left Hand Wins!");
+					money += Globals.BET_SIZE;
+				}
+				
+				if (dealerHandValue < playerRightHandValue)
+				{
+					System.out.println("Player's Right Hand Wins!");
+					money += Globals.BET_SIZE;
+				}
+			}
 		}
 		else
 		{
 			//  Check dealer against left side only
-			newDeal();
+			
+			// Determine who wins
+			if (dealerHandValue > playerLeftHandValue)
+			{
+				JOptionPane.showMessageDialog(this, "Dealer Wins!");
+			}
+			else
+			{
+				JOptionPane.showMessageDialog(this, "Player Wins");
+				money += Globals.BET_SIZE;
+			}
+			
 		}
+		
+		// Need some sort of wait here
+		// i.e. a button that initiates newDeal()
+		// Perhaps the screen could display who wins during this wait
+		
+		newDeal();
 
 	}
+
 	
 }
 
