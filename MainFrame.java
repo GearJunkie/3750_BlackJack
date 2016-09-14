@@ -347,14 +347,6 @@ public class MainFrame extends JFrame
 			// Deals dealer a new card and updates dealerHandValue if dealer hand value is less than 17
 			// If dealer has an ace and a hand value of 17, deal new card and change ace to 1
 			
-			/*for (int j = 0; j < dealerCard; i++)
-			{
-				dealerPanels[j].repaint();
-			}*/
-			
-			
-			
-			System.out.println(dealerHandValue);
 			if (dealerHandValue > playerLeftHandValue && dealerHandValue > playerRightHandValue)
 			{
 				break;
@@ -367,15 +359,6 @@ public class MainFrame extends JFrame
 				dealCard(playerSide.dealer);
 				dealerHandValue += dealerPanels[dealerCard - 1].getCard().numValue;
 			}
-			else if (dealerHandValue == 17 && dealerAce == true)
-			{
-				JOptionPane.showMessageDialog(this, "Next card");
-				System.out.println("new card dealt");
-				dealerHandValue -= 10;		// Ace is changed from value 11 to 1
-				dealCard(playerSide.dealer);
-				dealerHandValue += dealerPanels[dealerCard - 1].getCard().numValue;
-				dealerAce = false;			// Ace value is changed to 1, so dealerAce is set to false
-			}
 			else
 			{
 				break;
@@ -384,6 +367,19 @@ public class MainFrame extends JFrame
 			// Checks for any new dealt Ace
 			if (dealerPanels[dealerCard - 1].getCard().numValue == 11)
 				dealerAce = true;
+			
+			if (dealerHandValue > 21)
+			{
+				if (dealerAce == true)
+				{
+					dealerHandValue -= 10;		// Ace is changed from value 11 to 1
+					dealerAce = false;			// Ace value is changed to 1, so dealerAce is set to false
+				}
+				else
+				{
+					break;
+				}
+			}
 			
 			revalidate();
 		}
@@ -399,12 +395,7 @@ public class MainFrame extends JFrame
 			}
 			
 			// Determine who wins
-			if (dealerHandValue > 21)
-			{
-				dealerHandValue = 0;
-				JOptionPane.showMessageDialog(this, "Dealer busts, player Wins!");
-			}
-			else if (dealerHandValue > playerLeftHandValue && dealerHandValue > playerRightHandValue)
+			if (dealerHandValue > playerLeftHandValue && dealerHandValue > playerRightHandValue)
 			{
 				System.out.println("Dealer Wins!");
 			}
@@ -433,7 +424,7 @@ public class MainFrame extends JFrame
 				dealerHandValue = 0;
 				JOptionPane.showMessageDialog(this, "Dealer busts, player Wins!");
 			}
-			else if (dealerHandValue > playerLeftHandValue)
+			else if (dealerHandValue > playerLeftHandValue || playerLeftHandValue > 21)
 			{
 				JOptionPane.showMessageDialog(this, "Dealer Wins!");
 			}
