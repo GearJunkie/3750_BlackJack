@@ -44,6 +44,7 @@ public class MainFrame extends JFrame
 	private int rightHandCard = 5;
 	private int dealerCard = 0;
 	private int money = 500;
+	private int leftHandValue;
 	
 	//hand values
 
@@ -64,6 +65,7 @@ public class MainFrame extends JFrame
 	{
 		
 		LHTotalLabel.setBounds(20, 20, 500, 500);
+
 		add(LHTotalLabel);
 		
 		
@@ -122,6 +124,9 @@ public class MainFrame extends JFrame
 		leftStand.setVisible(true);
 		leftHandValues.clear();
 		rightHandValues.clear();
+		
+		LHTotalLabel.money = "$" + money;
+		
 		//  Sets all the panels to null, so they will not show any cards
 		for (int i = 0; i < 10; i++)
 		{
@@ -154,9 +159,16 @@ public class MainFrame extends JFrame
 		
 		if (playerPanels[0].getCard().value == playerPanels[1].getCard().value)
 		{
-			System.out.println("Split detected");
+			//System.out.println("Split detected");
 			splitButton.setVisible(true);
 			revalidate();
+		}
+		
+		if ((playerPanels[0].getCard().numValue + playerPanels[1].getCard().numValue) == 21)
+		{
+			JOptionPane.showMessageDialog(this, "BLACK JACK!!");
+			money += Globals.BET_SIZE * 1.5;
+			newDeal();
 		}
 	}
 	
@@ -187,28 +199,10 @@ public class MainFrame extends JFrame
 	private void dealCard(playerSide side)
 	{
 
-//		if(side == playerSide.leftHand)
-//		{
-//			playerPanels[leftHandCard].setCard(deck.get(deckPos));
-//			System.out.println(playerPanels[leftHandCard].getCard().numValue);
-//			leftHandCard++;
-//		}
-//		else if (side == playerSide.rightHand)
-//		{
-//			playerPanels[rightHandCard].setCard(deck.get(deckPos));
-//			rightHandCard++;
-//		}
-//		else if (side == playerSide.dealer)
-//		{
-//			dealerPanels[dealerCard].setCard(deck.get(deckPos));
-//			dealerCard++;
-//		}
-//		deckPos++;
-		
 		if(side == playerSide.leftHand)
 		{
 			playerPanels[leftHandCard].setCard(deck.get(deckPos));
-			System.out.println(playerPanels[leftHandCard].getCard().numValue);
+			//System.out.println(playerPanels[leftHandCard].getCard().numValue);
 			leftHandValues.add(playerPanels[leftHandCard].getCard().numValue);
 			leftHandCard++;
 		}
@@ -227,7 +221,6 @@ public class MainFrame extends JFrame
 		}
 		deckPos++;
 	
-		LHTotalLabel.money = "$" + money;
 		LHTotalLabel.repaint();
 		
 	}
@@ -239,21 +232,21 @@ public class MainFrame extends JFrame
 	
 	public void buttonPressed(JButton button, ActionEvent e)
 	{
-
+		
 		//  Checks to see which button was pressed and responds accordingly
 		if(e.getSource() == leftHit)
 		{
-			int leftHandValue = 0;
+			splitButton.setVisible(false);
+			leftHandValue = 0;
+			
 			//System.out.println("Left Hit");
 			dealCard(playerSide.leftHand);
 			
 			
 			for(int i = 0; i < leftHandCard; i++)
 			{
-				leftHandValue += playerPanels[i].getCard().numValue;
-				
+				leftHandValue += playerPanels[i].getCard().numValue;	
 			}
-			
 			
 			if (leftHandValue > 21)
 			{
@@ -272,21 +265,86 @@ public class MainFrame extends JFrame
 						    "Bust!",
 						    "",
 						    JOptionPane.PLAIN_MESSAGE);
-					
-					newDeal();
+					if(split)
+					{
+						leftStand.setVisible(false);
+						leftHit.setVisible(false);
+						rightStand.setVisible(true);
+						rightHit.setVisible(true);
+					}
+					else
+					{
+						newDeal();
+					}
 				}
 			}
+			
+			
+			
+		}
+		else if(e.getSource() == splitButton)
+		{
+			playerPanels[5].setCard(playerPanels[1].getCard());
+			rightHandCard++;
+			
+			dealCard(playerSide.rightHand);
+			
+			leftHandValues.remove(1);
+			leftHandCard--;
+			
+			playerPanels[1].setCard(null);
+			dealCard(playerSide.leftHand);
+			splitButton.setVisible(false);
+			split = true;
+			
+			playerPanels[5].repaint();
+			playerPanels[1].repaint();
 			
 		}
 		else if (e.getSource() == rightHit)
 		{
 			dealCard(playerSide.rightHand);
+			int rightHandValue = 0;
+			
+			for (int i = 5; i < rightHandCard; i++)
+			{
+				rightHandValue += playerPanels[i].getCard().numValue;
+			}
+			
+			if (rightHandValue > 21)
+			{
+				for (int i = 5; i < rightHandCard; i++)
+				{
+					if (playerPanels[i].getCard().numValue == 11)
+					{
+						rightHandValue-= 10;
+					}
+				}
+			
+				if (rightHandValue > 21)
+				{
+					money -= Globals.BET_SIZE;
+					JOptionPane.showMessageDialog(this,
+						    "Bust!",
+						    "",
+						    JOptionPane.PLAIN_MESSAGE);
+					if (leftHandValue < 22)
+					{
+						dealerTurn();
+					}
+					else
+					{
+						newDeal();
+					}
+				}
+			}
+			
+			
 		}
 		else if (e.getSource() == leftStand)
 		{
 			if(split)
 			{
-				
 				leftHit.setVisible(false);
 				leftStand.setVisible(false);
 				rightHit.setVisible(true);
@@ -305,11 +363,11 @@ public class MainFrame extends JFrame
 			dealerTurn();
 		}
 		
-		Component frame = null;
+		//Component frame = null;  //???
 		//  This is for the 5 card rule.  If the player collects 5 cards, it is a automatic win.
 		if (playerPanels[4].getCard() != null)
 		{
-			System.out.println("Additional Code run");
+			//System.out.println("Additional Code run");
 			if(split)
 			{
 				money += Globals.BET_SIZE;
@@ -321,7 +379,7 @@ public class MainFrame extends JFrame
 			else
 			{
 				money+= Globals.BET_SIZE;
-				JOptionPane.showMessageDialog(frame,
+				JOptionPane.showMessageDialog(this,
 					    "You win! " + "$10",
 					    "",
 					    JOptionPane.PLAIN_MESSAGE);
@@ -333,15 +391,19 @@ public class MainFrame extends JFrame
 		{
 			//System.out.println("Additional Code run");
 			money += Globals.BET_SIZE;
-			JOptionPane.showMessageDialog(frame,
+			JOptionPane.showMessageDialog(this,
 				    "You win!" + "$10",
 				    "",
 				    JOptionPane.PLAIN_MESSAGE);
-			newDeal();
+			if (leftHandValue < 22 && playerPanels[4].getCard() == null)
+			{
+				dealerTurn();
+			}
+			else
+			{
+				newDeal();
+			}
 		}
-		
-
-		
 	}
 	
 	private void dealerTurn()
@@ -386,14 +448,8 @@ public class MainFrame extends JFrame
 				// Deals dealer a new card and updates dealerHandValue if dealer hand value is less than 17
 				// If dealer has an ace and a hand value of 17, deal new card and change ace to 1
 				
-				/*for (int j = 0; j < dealerCard; i++)
-				{
-					dealerPanels[j].repaint();
-				}*/
 				
-				
-				
-				System.out.println(dealerHandValue);
+				//System.out.println(dealerHandValue);
 				if (dealerHandValue > playerLeftHandValue && dealerHandValue > playerRightHandValue)
 				{
 					break;
@@ -402,17 +458,18 @@ public class MainFrame extends JFrame
 				if (dealerHandValue < 17 || (dealerHandValue < playerLeftHandValue && dealerHandValue < playerRightHandValue))
 				{
 					JOptionPane.showMessageDialog(this, "Next card");
-					System.out.println("new card dealt");
 					dealCard(playerSide.dealer);
 					dealerHandValue += dealerPanels[dealerCard - 1].getCard().numValue;
 				}
-				else if (dealerHandValue == 17 && dealerAce == true)
+				else if (dealerHandValue == 17 && dealerAce)
 				{
 					JOptionPane.showMessageDialog(this, "Next card");
-					System.out.println("new card dealt");
-					dealerHandValue -= 10;		// Ace is changed from value 11 to 1
 					dealCard(playerSide.dealer);
 					dealerHandValue += dealerPanels[dealerCard - 1].getCard().numValue;
+					if(dealerHandValue > 21)
+					{
+						dealerHandValue -= 21;
+					}
 					dealerAce = false;			// Ace value is changed to 1, so dealerAce is set to false
 				}
 				else
@@ -422,7 +479,14 @@ public class MainFrame extends JFrame
 				
 				// Checks for any new dealt Ace
 				if (dealerPanels[dealerCard - 1].getCard().numValue == 11)
+				{
 					dealerAce = true;
+					if(dealerHandValue > 21)
+					{
+						dealerHandValue-=10;
+					}
+				}
+				
 				
 				revalidate();
 			}
@@ -432,9 +496,9 @@ public class MainFrame extends JFrame
 				//  Check dealer against left and right side - determine if player gets winnings or not
 				
 				// Determine right hand value
-				for (int i = 0; i < rightHandCard; i++)
+				for (int i = 5; i < rightHandCard; i++)
 				{
-					playerRightHandValue += playerPanels[i + (leftHandCard - 1)].getCard().numValue;
+					playerRightHandValue += playerPanels[i].getCard().numValue;
 				}
 				
 				// Determine who wins
@@ -446,20 +510,39 @@ public class MainFrame extends JFrame
 				}
 				else if (dealerHandValue > playerLeftHandValue && dealerHandValue > playerRightHandValue)
 				{
-					System.out.println("Dealer Wins!");
+					JOptionPane.showMessageDialog(this, "Dealer Wins!");
+
+					money -= Globals.BET_SIZE * 2;
 				}
 				else
 				{
-					if (dealerHandValue < playerLeftHandValue)
+					if (dealerHandValue < playerLeftHandValue && playerLeftHandValue < 22)
 					{
-						System.out.println("Player's Left Hand Wins!");
+						JOptionPane.showMessageDialog(this, "Player's Left Hand Wins!");
 						money += Globals.BET_SIZE;
 					}
-					
-					if (dealerHandValue < playerRightHandValue)
+					else
 					{
-						System.out.println("Player's Right Hand Wins!");
+						if (playerLeftHandValue < 22)
+						{
+							JOptionPane.showMessageDialog(this, "Dealer Beats Left Hand!");
+							money -= Globals.BET_SIZE;
+						}
+					}
+					
+					if (dealerHandValue < playerRightHandValue && playerRightHandValue < 22)
+					{
+						JOptionPane.showMessageDialog(this, "Player's Right Hand Wins!");
 						money += Globals.BET_SIZE;
+						
+					}
+					else
+					{
+						if (playerRightHandValue < 22)
+						{	
+							JOptionPane.showMessageDialog(this, "Delaer Beats Right Hand");
+							money -= Globals.BET_SIZE;
+						}
 					}
 				}
 			}
@@ -470,12 +553,28 @@ public class MainFrame extends JFrame
 				// Determine who wins
 				if (dealerHandValue > 21)
 				{
-					dealerHandValue = 0;
-					JOptionPane.showMessageDialog(this, "Dealer busts, player Wins!");
+					if(!split)
+					{
+						dealerHandValue = 0;
+						JOptionPane.showMessageDialog(this, "Dealer busts, player Wins!");
+						money += Globals.BET_SIZE;
+					}
+					else
+					{
+						if(playerLeftHandValue > 21 || playerRightHandValue > 21)
+						{
+							money += Globals.BET_SIZE;
+						}
+						else
+						{
+							money += Globals.BET_SIZE;
+						}
+					}
 				}
 				else if (dealerHandValue > playerLeftHandValue)
 				{
 					JOptionPane.showMessageDialog(this, "Dealer Wins!");
+					money -= Globals.BET_SIZE;
 				}
 				else if (dealerHandValue < playerLeftHandValue)
 				{
