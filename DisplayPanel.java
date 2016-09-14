@@ -39,8 +39,9 @@ public class DisplayPanel extends JPanel
 		 
 		 frame.strLHTotal = "";
 		 
-		 frame.strLHTotal += "Right Total: " + frame.RHTotal + " ";
+		 
 		 frame.strLHTotal += "Left Total: " + frame.LHTotal + " ";
+		 frame.strLHTotal += "Right Total: " + frame.RHTotal + " ";
 		//add RHTotal and LHTotal to string in label display
 		 
 	}
