@@ -314,6 +314,8 @@ public class MainFrame extends JFrame
 		int playerLeftHandValue = 0;
 		int playerRightHandValue = 0;
 		boolean dealerAce = false;
+		boolean playerLeftAce = false;
+		boolean playerRightAce = false;
 		
 		dealerPanels[1].concealed = false;
 		dealerPanels[1].repaint();
@@ -339,6 +341,12 @@ public class MainFrame extends JFrame
 		for (int i = 0; i < leftHandCard; i++)
 		{
 			playerLeftHandValue += playerPanels[i].getCard().numValue;
+		}
+		
+		// Change player ace value if over 21
+		if (playerLeftHandValue > 21 && playerLeftAce == true)
+		{
+			playerLeftHandValue -= 10;
 		}
 		
 		// Dealer AI
@@ -392,6 +400,12 @@ public class MainFrame extends JFrame
 			for (int i = 0; i < rightHandCard; i++)
 			{
 				playerRightHandValue += playerPanels[i + (leftHandCard - 1)].getCard().numValue;
+			}
+			
+			// Change player ace value if over 21
+			if (playerRightHandValue > 21 && playerRightAce == true)
+			{
+				playerRightHandValue -= 10;
 			}
 			
 			// Determine who wins
